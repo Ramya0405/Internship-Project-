@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Quality Inspection')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('wh-dashboard')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('Record Quality Inspection')}"></div>
+        <div class="fcx-content">
+            <div class="row"><div class="col-md-7">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 fw-semibold">Quality Inspection Form</div>
+                    <div class="card-body">
+                        <form th:action="@{/quality/new}" th:object="${inspectionDto}" method="post" novalidate>
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <div class="mb-3">
+                                <label class="form-label small fw-medium">Batch ID *</label>
+                                <input type="number" th:field="*{batchId}"
+                                       th:classappend="${#fields.hasErrors('batchId')} ? 'is-invalid'"
+                                       class="form-control" placeholder="Enter batch ID"/>
+                                <div class="invalid-feedback" th:errors="*{batchId}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-medium">Quality Grade *</label>
+                                <select th:field="*{qualityGrade}"
+                                        th:classappend="${#fields.hasErrors('qualityGrade')} ? 'is-invalid'"
+                                        class="form-select">
+                                    <option value="">-- Select grade --</option>
+                                    <option th:each="g : ${grades}" th:value="${g}" th:text="${g}"></option>
+                                </select>
+                                <div class="invalid-feedback" th:errors="*{qualityGrade}"></div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-medium">Temperature (°C)</label>
+                                    <input type="number" step="0.1" th:field="*{temperature}" class="form-control" placeholder="e.g. 4.5"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-medium">Humidity (%)</label>
+                                    <input type="number" step="0.1" th:field="*{humidity}" class="form-control" placeholder="e.g. 65"/>
+                                </div>
+                            </div>
+                            <div class="mb-3 mt-3">
+                                <label class="form-label small fw-medium">Inspection Date *</label>
+                                <input type="date" th:field="*{inspectionDate}"
+                                       th:classappend="${#fields.hasErrors('inspectionDate')} ? 'is-invalid'"
+                                       class="form-control"/>
+                                <div class="invalid-feedback" th:errors="*{inspectionDate}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-medium">Notes</label>
+                                <textarea th:field="*{inspectionNotes}" class="form-control" rows="3" placeholder="Inspection notes..."></textarea>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn fcx-btn-primary">
+                                    <i class="fa fa-clipboard-check me-1"></i>Record Inspection
+                                </button>
+                                <a th:href="@{/warehouse/dashboard}" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div></div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

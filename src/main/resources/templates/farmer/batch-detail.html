@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Batch Detail')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('batches')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('Batch Detail')}"></div>
+        <div class="fcx-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="row g-3">
+                <!-- Info card -->
+                <div class="col-md-5">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-0 fw-semibold">Batch Information</div>
+                        <div class="card-body">
+                            <dl class="row small">
+                                <dt class="col-5">Tracking ID</dt>
+                                <dd class="col-7"><code th:text="${batch.trackingId}"></code></dd>
+                                <dt class="col-5">Product</dt>
+                                <dd class="col-7" th:text="${batch.productName}">-</dd>
+                                <dt class="col-5">Category</dt>
+                                <dd class="col-7" th:text="${batch.productCategory}">-</dd>
+                                <dt class="col-5">Farm</dt>
+                                <dd class="col-7" th:text="${batch.farmName}">-</dd>
+                                <dt class="col-5">Quantity</dt>
+                                <dd class="col-7"><span th:text="${batch.quantity}"></span> kg</dd>
+                                <dt class="col-5">Harvest Date</dt>
+                                <dd class="col-7" th:text="${batch.harvestDate}">-</dd>
+                                <dt class="col-5">Expiry Date</dt>
+                                <dd class="col-7" th:text="${batch.expiryDate ?: 'N/A'}">-</dd>
+                                <dt class="col-5">Status</dt>
+                                <dd class="col-7">
+                                    <span class="badge" th:classappend="'fcx-badge-' + ${batch.currentStatus.name().toLowerCase().replace('_','-')}"
+                                          th:text="${batch.currentStatus.name().replace('_',' ')}"></span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <!-- Status update -->
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm" th:if="${!statusValues.isEmpty()}">
+                        <div class="card-header bg-transparent border-0 fw-semibold">Update Status</div>
+                        <div class="card-body">
+                            <form th:action="@{/farmer/batches/{id}/status(id=${batch.id})}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <select name="status" class="form-select mb-3">
+                                    <option th:each="s : ${statusValues}" th:value="${s}"
+                                            th:text="${s.name().replace('_',' ')}"></option>
+                                </select>
+                                <button type="submit" class="btn fcx-btn-primary btn-sm w-100">Update</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card border-0 shadow-sm" th:if="${statusValues.isEmpty()}">
+                        <div class="card-header bg-transparent border-0 fw-semibold">Status</div>
+                        <div class="card-body small text-muted">No status changes are available for this batch.</div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mt-3">
+                        <div class="card-header bg-transparent border-0 fw-semibold">Actions</div>
+                        <div class="card-body d-flex flex-column gap-2">
+                            <a th:href="@{/events/batch/{id}(id=${batch.id})}"    class="btn btn-outline-primary btn-sm"><i class="fa fa-history me-1"></i>Supply Chain History</a>
+                            <a th:href="@{/ai/batch/{id}(id=${batch.id})}"        class="btn btn-outline-warning btn-sm"><i class="fa fa-robot me-1"></i>AI Risk Analysis</a>
+                            <a th:href="@{/quality/batch/{id}(id=${batch.id})}"   class="btn btn-outline-success btn-sm"><i class="fa fa-clipboard-check me-1"></i>Quality Inspections</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Transportation Records')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('dist-transports')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('Transportation Records')}"></div>
+        <div class="fcx-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">Monitor active transit legs, carrier vehicle details, and delivery milestones.</span>
+                <a th:href="@{/distributor/transportation/new}" class="btn fcx-btn-primary btn-sm">
+                    <i class="fa fa-plus me-1"></i>New Transportation
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover fcx-table mb-0">
+                            <thead><tr>
+                                <th>Tracking ID</th><th>Product</th><th>Vehicle</th><th>Origin</th>
+                                <th>Destination</th><th>Departure</th><th>Status</th><th>Actions</th>
+                            </tr></thead>
+                            <tbody>
+                            <tr th:if="${transports.isEmpty()}">
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    No transportation records found. <a th:href="@{/distributor/transportation/new}">Schedule a shipment.</a>
+                                </td>
+                            </tr>
+                            <tr th:each="t : ${transports}">
+                                <td><code th:text="${t.trackingId ?: ('Batch #' + t.batchId)}"></code></td>
+                                <td th:text="${t.productName ?: '-'}">-</td>
+                                <td><i class="fa fa-truck text-muted me-1"></i><span th:text="${t.vehicleNumber ?: 'N/A'}"></span></td>
+                                <td th:text="${t.sourceLocation}">-</td>
+                                <td th:text="${t.destinationLocation}">-</td>
+                                <td th:text="${#temporals.format(t.departureDate, 'dd MMM HH:mm') ?: '-'}">-</td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${t.transportationStatus.name() == 'COMPLETED'} ? 'bg-success' : (${t.transportationStatus.name() == 'DELAYED'} ? 'bg-danger' : 'bg-warning text-dark')"
+                                          th:text="${t.transportationStatus.name().replace('_',' ')}"></span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/distributor/transportation/{id}/edit(id=${t.id})}" class="btn btn-sm btn-outline-primary" title="Update">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <a th:href="@{/events/batch/{id}(id=${t.batchId})}" class="btn btn-sm btn-outline-secondary" title="Timeline">
+                                        <i class="fa fa-history"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent" th:if="${!transports.isEmpty()}">
+                    <div th:replace="~{fragments/layout :: pagination(${transports}, '/distributor/transportation')}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

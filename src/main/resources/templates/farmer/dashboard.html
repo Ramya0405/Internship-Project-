@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Farmer Dashboard')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('farmer-dashboard')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('Farmer Dashboard')}"></div>
+        <div class="fcx-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="fcx-stat-card" style="background:#e8f5e9;">
+                        <div class="stat-icon" style="background:#c8e6c9;color:#2e7d32;"><i class="fa fa-tractor"></i></div>
+                        <div><div class="stat-value" th:text="${farmCount}">0</div><div class="stat-label">My Farms</div></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="fcx-stat-card" style="background:#e3f2fd;">
+                        <div class="stat-icon" style="background:#bbdefb;color:#1565c0;"><i class="fa fa-boxes"></i></div>
+                        <div><div class="stat-value" th:text="${batchCount}">0</div><div class="stat-label">My Batches</div></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="fcx-stat-card" style="background:#fff8e1;">
+                        <div class="stat-icon" style="background:#ffecb3;color:#e65100;"><i class="fa fa-truck"></i></div>
+                        <div><div class="stat-value" th:text="${inTransitCount}">0</div><div class="stat-label">In Transit</div></div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="fcx-stat-card" style="background:#f3e5f5;">
+                        <div class="stat-icon" style="background:#e1bee7;color:#6a1b9a;"><i class="fa fa-check-circle"></i></div>
+                        <div><div class="stat-value" th:text="${soldCount}">0</div><div class="stat-label">Sold Batches</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-transparent border-0 fw-semibold">Quick Actions</div>
+                        <div class="card-body d-flex flex-wrap gap-2">
+                            <a th:href="@{/farmer/farms/new}"   class="btn fcx-btn-primary btn-sm"><i class="fa fa-plus me-1"></i>Register Farm</a>
+                            <a th:href="@{/farmer/batches/new}" class="btn btn-success btn-sm"><i class="fa fa-seedling me-1"></i>Create Batch</a>
+                            <a th:href="@{/farmer/farms}"       class="btn btn-outline-secondary btn-sm"><i class="fa fa-tractor me-1"></i>View Farms</a>
+                            <a th:href="@{/farmer/batches}"     class="btn btn-outline-secondary btn-sm"><i class="fa fa-boxes me-1"></i>View Batches</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+.git
+.github
+.idea
+.vscode
+.env
+.env.*
+!.env.example
+target
+uploads
+test-uploads
+*.log
+hs_err_pid*
+mvnw
+mvnw.cmd
+.mvn
+src/test

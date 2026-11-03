@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Track Product – FarmChainX</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link th:href="@{/css/farmchainx.css}" rel="stylesheet"/>
+</head>
+<body class="fcx-auth-bg">
+
+<nav class="navbar navbar-expand-lg fcx-navbar">
+    <div class="container">
+        <a class="navbar-brand fcx-brand text-white" th:href="@{/}">🌿 FarmChainX</a>
+        <div class="ms-auto">
+            <a th:href="@{/login}" class="btn btn-outline-light btn-sm me-2">Login</a>
+            <a th:href="@{/register}" class="btn btn-light btn-sm">Register</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 col-lg-6 mx-auto">
+            <div class="card shadow-sm border-0 fcx-card">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-1"><i class="fa fa-search text-success me-2"></i>Track Your Product</h4>
+                    <p class="text-muted small mb-4">Enter the tracking ID printed on your product packaging.</p>
+
+                    <form th:action="@{/track}" method="get">
+                        <div class="input-group">
+                            <input type="text" name="id" class="form-control form-control-lg"
+                                   placeholder="e.g. FCX-20240515-A1B2C3D4"
+                                   th:value="${trackingId}"/>
+                            <button type="submit" class="btn fcx-btn-primary px-4">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Results populated by JavaScript via REST API -->
+                    <div id="trackingResult" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+const initialId = /*[[${trackingId}]]*/ null;
+if (initialId) {
+    fetchTrackingData(initialId);
+}
+
+async function fetchTrackingData(id) {
+    const el = document.getElementById('trackingResult');
+    const spinner = document.createElement('div');
+    spinner.className = 'text-center py-4';
+    const spinnerIcon = document.createElement('div');
+    spinnerIcon.className = 'spinner-border text-success';
+    spinner.appendChild(spinnerIcon);
+    el.replaceChildren(spinner);
+    try {
+        const resp = await fetch('/api/public/track/' + encodeURIComponent(id));
+        const json = await resp.json();
+        if (json.success && json.data) {
+            renderResult(json.data);
+        } else {
+            showMessage('alert-warning', json.message || 'Tracking ID not found.');
+        }
+    } catch(e) {
+        showMessage('alert-danger', 'Error fetching tracking data.');
+    }
+}
+
+function showMessage(className, message) {
+    const alert = document.createElement('div');
+    alert.className = `alert ${className}`;
+    alert.textContent = message;
+    document.getElementById('trackingResult').replaceChildren(alert);
+}
+
+function renderResult(data) {
+    const el = document.getElementById('trackingResult');
+    const title = document.createElement('h5');
+    title.className = 'fw-semibold text-success';
+    title.textContent = data.productName || 'Product';
+
+    const tracking = document.createElement('p');
+    tracking.className = 'text-muted small mb-2';
+    tracking.textContent = `Batch: ${data.trackingId || ''}`;
+
+    const status = document.createElement('span');
+    const statusValue = data.currentStatus || 'UNKNOWN';
+    status.className = `badge fcx-badge-${statusValue.toLowerCase().replaceAll('_', '-')} mb-3`;
+    status.textContent = statusValue.replaceAll('_', ' ');
+
+    const heading = document.createElement('h6');
+    heading.className = 'fw-semibold mt-3 mb-2';
+    heading.textContent = 'Supply Chain Journey';
+    const timeline = document.createElement('div');
+    timeline.className = 'timeline';
+
+    (data.events || []).forEach(ev => {
+        const item = document.createElement('div');
+        item.className = 'timeline-item';
+        const dot = document.createElement('div');
+        dot.className = 'timeline-dot';
+        const content = document.createElement('div');
+        content.className = 'timeline-content';
+        const eventName = document.createElement('div');
+        eventName.className = 'fw-medium';
+        eventName.textContent = (ev.eventType || 'UPDATE').replaceAll('_', ' ');
+        const eventTime = document.createElement('div');
+        eventTime.className = 'small text-muted';
+        eventTime.textContent = ev.eventTimestamp || '';
+        content.append(eventName, eventTime);
+        item.append(dot, content);
+        timeline.appendChild(item);
+    });
+
+    el.replaceChildren(title, tracking, status, heading, timeline);
+}
+/*]]>*/
+</script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+{
+  "info": {
+    "_postman_id": "d0fa2ee5-7dbd-4c23-b2f4-5c0ef71e8a9e",
+    "name": "FarmChainX API",
+    "description": "Session-based FarmChainX API workflow. Set credentials and IDs in a private Postman environment. Writes require CSRF.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "adminEmail", "value": "" },
+    { "key": "adminPassword", "value": "" },
+    { "key": "csrfToken", "value": "" },
+    { "key": "farmId", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "batchId", "value": "" },
+    { "key": "trackingId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Session and authentication",
+      "item": [
+        {
+          "name": "Get login page and CSRF token",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const match = pm.response.text().match(/name=\"_csrf\"[^>]*value=\"([^\"]+)\"/i);",
+                  "pm.test('login form exposes CSRF token', () => pm.expect(match).to.not.equal(null));",
+                  "if (match) pm.collectionVariables.set('csrfToken', match[1]);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as configured administrator",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "email", "value": "{{adminEmail}}" },
+                { "key": "password", "value": "{{adminPassword}}", "type": "text" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": "{{baseUrl}}/login"
+          }
+        },
+        {
+          "name": "Refresh CSRF token after login",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/admin/users/new"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const match = pm.response.text().match(/name=\"_csrf\"[^>]*value=\"([^\"]+)\"/i);",
+                  "pm.test('authenticated page exposes refreshed CSRF token', () => pm.expect(match).to.not.equal(null));",
+                  "if (match) pm.collectionVariables.set('csrfToken', match[1]);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Current authenticated user",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        },
+        {
+          "name": "Register consumer (CSRF required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-CSRF-TOKEN", "value": "{{csrfToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Example Consumer\",\n  \"email\": \"consumer@example.test\",\n  \"password\": \"ReplaceWithYourOwnPassword123\",\n  \"confirmPassword\": \"ReplaceWithYourOwnPassword123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Farm-to-consumer traceability",
+      "item": [
+        {
+          "name": "Create farm",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-CSRF-TOKEN", "value": "{{csrfToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmName\": \"North Farm\",\n  \"location\": \"Punjab\",\n  \"farmSize\": 12.5,\n  \"certification\": \"Organic\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/farms"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) pm.collectionVariables.set('farmId', pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-CSRF-TOKEN", "value": "{{csrfToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productName\": \"Rice\",\n  \"category\": \"Grain\",\n  \"description\": \"Example traceability product\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/products"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) pm.collectionVariables.set('productId', pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create batch",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-CSRF-TOKEN", "value": "{{csrfToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{productId}},\n  \"farmId\": {{farmId}},\n  \"quantity\": 50.0,\n  \"harvestDate\": \"2026-11-03\",\n  \"expiryDate\": \"2027-05-03\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/batches"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const data = pm.response.json().data;",
+                  "  pm.collectionVariables.set('batchId', data.id);",
+                  "  pm.collectionVariables.set('trackingId', data.trackingId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Record supply-chain event",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-CSRF-TOKEN", "value": "{{csrfToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batchId\": {{batchId}},\n  \"eventType\": \"PACKED\",\n  \"location\": \"Packing facility\",\n  \"description\": \"Batch packed for shipment\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/batches/{{batchId}}/events"
+          }
+        },
+        {
+          "name": "Create transportation record",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-CSRF-TOKEN", "value": "{{csrfToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batchId\": {{batchId}},\n  \"sourceLocation\": \"Farm\",\n  \"destinationLocation\": \"Warehouse\",\n  \"transportationStatus\": \"SCHEDULED\",\n  \"vehicleNumber\": \"TEST-001\",\n  \"notes\": \"Example shipment\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/transportation"
+          }
+        },
+        {
+          "name": "Record quality inspection",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-CSRF-TOKEN", "value": "{{csrfToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batchId\": {{batchId}},\n  \"qualityGrade\": \"A\",\n  \"inspectionDate\": \"2026-11-03\",\n  \"temperature\": 18.0,\n  \"humidity\": 55.0,\n  \"inspectionNotes\": \"Example inspection\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/quality-inspections"
+          }
+        },
+        {
+          "name": "Read batch event history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/batches/{{batchId}}/history"
+          }
+        },
+        {
+          "name": "Public product tracking",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/public/track/{{trackingId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

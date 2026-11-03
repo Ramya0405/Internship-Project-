@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Retailer Dashboard')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('ret-dashboard')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('Retailer Dashboard')}"></div>
+        <div class="fcx-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-xl-4">
+                    <div class="fcx-stat-card" style="background:#e8f5e9;">
+                        <div class="stat-icon" style="background:#c8e6c9;color:#2e7d32;"><i class="fa fa-store"></i></div>
+                        <div><div class="stat-value" th:text="${atRetailerCount}">0</div><div class="stat-label">Batches in Inventory</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0 fw-semibold">Current Inventory</div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover fcx-table mb-0">
+                            <thead><tr><th>Tracking ID</th><th>Product</th><th>Qty (kg)</th><th>Harvest Date</th><th>Actions</th></tr></thead>
+                            <tbody>
+                            <tr th:if="${recentBatches.isEmpty()}"><td colspan="5" class="text-center text-muted py-3">No inventory.</td></tr>
+                            <tr th:each="b : ${recentBatches}">
+                                <td><code th:text="${b.trackingId}"></code></td>
+                                <td th:text="${b.productName}">-</td>
+                                <td th:text="${b.quantity}">-</td>
+                                <td th:text="${b.harvestDate}">-</td>
+                                <td><a th:href="@{/events/batch/{id}(id=${b.id})}" class="btn btn-sm btn-outline-primary"><i class="fa fa-history"></i></a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

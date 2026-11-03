@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Warehouse Facilities')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('wh-manage')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('Warehouse Facilities')}"></div>
+        <div class="fcx-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">Manage agricultural storage facilities and cold-chain depots.</span>
+                <a th:href="@{/warehouse/manage/new}" class="btn fcx-btn-primary btn-sm">
+                    <i class="fa fa-plus me-1"></i>Add Facility
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover fcx-table mb-0">
+                            <thead><tr>
+                                <th>Facility Name</th><th>Location</th><th>Capacity (Tons)</th><th>Manager</th><th>Actions</th>
+                            </tr></thead>
+                            <tbody>
+                            <tr th:if="${warehouses.isEmpty()}">
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    No warehouse facilities recorded. <a th:href="@{/warehouse/manage/new}">Register a facility.</a>
+                                </td>
+                            </tr>
+                            <tr th:each="w : ${warehouses}">
+                                <td class="fw-semibold" th:text="${w.warehouseName}">-</td>
+                                <td><i class="fa fa-map-marker-alt text-muted me-1"></i><span th:text="${w.location}">-</span></td>
+                                <td><span th:text="${w.capacityTons != null ? w.capacityTons + ' T' : 'N/A'}"></span></td>
+                                <td th:text="${w.managerName ?: '-'}">-</td>
+                                <td>
+                                    <a th:href="@{/warehouse/manage/{id}/edit(id=${w.id})}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent" th:if="${!warehouses.isEmpty()}">
+                    <div th:replace="~{fragments/layout :: pagination(${warehouses}, '/warehouse/manage')}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

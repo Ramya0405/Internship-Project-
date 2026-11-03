@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Farm Form')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('farms')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('Farm Form')}"></div>
+        <div class="fcx-content">
+            <div class="row"><div class="col-md-8 col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-0 fw-semibold"
+                         th:text="${editMode} ? 'Edit Farm' : 'Register New Farm'">Farm Form</div>
+                    <div class="card-body">
+                        <form th:action="${editMode} ? @{/farmer/farms/{id}/edit(id=${farmDto.id})} : @{/farmer/farms/new}"
+                              th:object="${farmDto}" method="post" novalidate>
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-medium">Farm Name *</label>
+                                <input type="text" th:field="*{farmName}"
+                                       th:classappend="${#fields.hasErrors('farmName')} ? 'is-invalid'"
+                                       class="form-control" placeholder="Green Valley Farm"/>
+                                <div class="invalid-feedback" th:errors="*{farmName}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-medium">Location *</label>
+                                <input type="text" th:field="*{location}"
+                                       th:classappend="${#fields.hasErrors('location')} ? 'is-invalid'"
+                                       class="form-control" placeholder="Village, District, State"/>
+                                <div class="invalid-feedback" th:errors="*{location}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-medium">Farm Size (acres)</label>
+                                <input type="number" step="0.01" th:field="*{farmSize}" class="form-control" placeholder="e.g. 12.5"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-medium">Certification</label>
+                                <input type="text" th:field="*{certification}" class="form-control" placeholder="e.g. Organic, FSSAI"/>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn fcx-btn-primary"
+                                        th:text="${editMode} ? 'Update Farm' : 'Register Farm'">Submit</button>
+                                <a th:href="@{/farmer/farms}" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div></div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

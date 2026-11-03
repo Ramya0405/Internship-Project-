@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('All Batches')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('admin-batches')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('All Product Batches')}"></div>
+        <div class="fcx-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover fcx-table mb-0">
+                            <thead><tr>
+                                <th>Tracking ID</th><th>Product</th><th>Farm</th><th>Farmer</th>
+                                <th>Qty (kg)</th><th>Status</th><th>Harvest</th><th>Actions</th>
+                            </tr></thead>
+                            <tbody>
+                            <tr th:if="${batches.isEmpty()}">
+                                <td colspan="8" class="text-center text-muted py-4">No batches found.</td>
+                            </tr>
+                            <tr th:each="b : ${batches}">
+                                <td><code th:text="${b.trackingId}"></code></td>
+                                <td th:text="${b.productName}">-</td>
+                                <td th:text="${b.farmName}">-</td>
+                                <td th:text="${b.farmerName}">-</td>
+                                <td th:text="${b.quantity}">-</td>
+                                <td><span class="badge" th:classappend="'fcx-badge-' + ${b.currentStatus.name().toLowerCase().replace('_','-')}"
+                                         th:text="${b.currentStatus.name().replace('_',' ')}"></span></td>
+                                <td th:text="${b.harvestDate}">-</td>
+                                <td>
+                                    <a th:href="@{/events/batch/{id}(id=${b.id})}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fa fa-history"></i>
+                                    </a>
+                                    <a th:href="@{/ai/batch/{id}(id=${b.id})}" class="btn btn-sm btn-outline-warning">
+                                        <i class="fa fa-robot"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div th:replace="~{fragments/layout :: pagination(${batches}, '/admin/batches')}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

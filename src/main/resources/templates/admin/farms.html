@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('All Farms')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('admin-farms')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('All Farms')}"></div>
+        <div class="fcx-content">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover fcx-table mb-0">
+                            <thead><tr><th>Farm Name</th><th>Location</th><th>Owner</th><th>Size (acres)</th><th>Certification</th><th>Registered</th></tr></thead>
+                            <tbody>
+                            <tr th:if="${farms.isEmpty()}"><td colspan="6" class="text-center text-muted py-4">No farms registered.</td></tr>
+                            <tr th:each="f : ${farms}">
+                                <td th:text="${f.farmName}">-</td>
+                                <td th:text="${f.location}">-</td>
+                                <td th:text="${f.ownerName}">-</td>
+                                <td th:text="${f.farmSize ?: '-'}">-</td>
+                                <td th:text="${f.certification ?: '-'}">-</td>
+                                <td th:text="${#temporals.format(f.createdAt,'dd MMM yyyy')}">-</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div th:replace="~{fragments/layout :: pagination(${farms}, '/admin/farms')}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

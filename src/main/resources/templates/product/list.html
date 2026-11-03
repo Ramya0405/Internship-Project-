@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Products')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('products')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('Product Catalogue')}"></div>
+        <div class="fcx-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="d-flex gap-2 mb-3 justify-content-between align-items-center flex-wrap">
+                <form th:action="@{/products}" method="get" class="d-flex gap-2">
+                    <input type="text" name="search" class="form-control form-control-sm" placeholder="Search products..."
+                           th:value="${search}"/>
+                    <button class="btn fcx-btn-primary btn-sm" type="submit"><i class="fa fa-search"></i></button>
+                </form>
+                <a th:href="@{/products/new}" class="btn fcx-btn-primary btn-sm">
+                    <i class="fa fa-plus me-1"></i>Add Product
+                </a>
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover fcx-table mb-0">
+                            <thead><tr><th>Product Name</th><th>Category</th><th>Description</th><th>Added</th><th>Actions</th></tr></thead>
+                            <tbody>
+                            <tr th:if="${products.isEmpty()}">
+                                <td colspan="5" class="text-center text-muted py-4">No products found.</td>
+                            </tr>
+                            <tr th:each="p : ${products}">
+                                <td th:text="${p.productName}">-</td>
+                                <td><span class="badge bg-success bg-opacity-10 text-success" th:text="${p.category}"></span></td>
+                                <td class="small text-muted" th:text="${#strings.abbreviate(p.description ?: '-', 60)}">-</td>
+                                <td th:text="${#temporals.format(p.createdAt,'dd MMM yyyy')}">-</td>
+                                <td>
+                                    <a th:href="@{/products/{id}/edit(id=${p.id})}" class="btn btn-sm btn-outline-primary"><i class="fa fa-edit"></i></a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div th:replace="~{fragments/layout :: pagination(${products}, '/products')}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

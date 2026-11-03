@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Batch Risk Analysis')}"></head>
+<body>
+<div class="fcx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('ai')}"></div>
+    <div class="fcx-main">
+        <div th:replace="~{fragments/layout :: topbar('Batch Risk Analysis')}"></div>
+        <div class="fcx-content">
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Batch header -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                        <h6 class="mb-0 fw-bold">Batch: <code th:text="${batch.trackingId}">-</code></h6>
+                        <span class="small text-muted" th:text="${batch.productName}">-</span>
+                    </div>
+                    <form th:action="@{/ai/analyze/{id}(id=${batch.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn fcx-btn-primary btn-sm">
+                            <i class="fa fa-robot me-1"></i>Run Analysis Now
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Analysis results -->
+            <div th:if="${analyses.isEmpty()}" class="card border-0 shadow-sm text-center py-5">
+                <i class="fa fa-robot text-muted" style="font-size:3rem;"></i>
+                <p class="mt-3 text-muted">No analysis has been run yet.</p>
+            </div>
+
+            <div th:each="a, i : ${analyses}" class="card border-0 shadow-sm mb-3"
+                 th:classappend="${a.riskLevel.name() == 'HIGH'} ? 'border-danger border' : ''">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">
+                        Analysis #<span th:text="${analyses.size() - i.index}"></span>
+                        <span class="ms-2 badge"
+                              th:classappend="'fcx-badge-' + ${a.riskLevel.name().toLowerCase()}"
+                              th:text="${a.riskLevel}"></span>
+                    </span>
+                    <span class="small text-muted" th:text="${#temporals.format(a.analyzedAt,'dd MMM yyyy HH:mm')}"></span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3 text-center">
+                            <div class="display-4 fw-bold"
+                                 th:classappend="${a.riskScore > 60} ? 'text-danger' : (${a.riskScore > 30} ? 'text-warning' : 'text-success')"
+                                 th:text="${a.riskScore}">0</div>
+                            <div class="small text-muted">/ 100</div>
+                            <div class="progress mt-2" style="height:8px;">
+                                <div class="progress-bar"
+                                     th:classappend="${a.riskScore > 60} ? 'bg-danger' : (${a.riskScore > 30} ? 'bg-warning' : 'bg-success')"
+                                     th:style="'width:' + ${a.riskScore} + '%'"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <h6 class="fcx-section-header small">Detected Anomalies</h6>
+                            <ul class="list-unstyled small" th:if="${!a.detectedAnomalies.isEmpty()}">
+                                <li th:each="anomaly : ${a.detectedAnomalies}" class="mb-1">
+                                    <i class="fa fa-exclamation-circle text-warning me-1"></i>
+                                    <span th:text="${anomaly}"></span>
+                                </li>
+                            </ul>
+                            <p th:if="${a.detectedAnomalies.isEmpty()}" class="text-muted small">
+                                <i class="fa fa-check-circle text-success me-1"></i>No anomalies detected.
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="fcx-section-header small">Recommendations</h6>
+                            <p class="small" th:text="${a.recommendations}">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

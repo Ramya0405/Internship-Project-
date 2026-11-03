@@ -1,0 +1,90 @@
+spring:
+  profiles:
+    default: dev
+
+  application:
+    name: FarmChainX
+
+  datasource:
+    url: "jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:farmchainx}?createDatabaseIfNotExist=${DB_CREATE_DATABASE:false}&sslMode=${DB_SSL_MODE:DISABLED}&serverTimezone=UTC"
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: ${DB_POOL_MIN_IDLE:1}
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      connection-timeout: 30000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    baseline-description: legacy schema baseline
+    validate-on-migrate: true
+
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    whitelabel:
+      enabled: false
+    include-message: never
+    include-stacktrace: never
+  shutdown: graceful
+
+farmchainx:
+  admin:
+    email: ${ADMIN_EMAIL}
+    password: ${ADMIN_PASSWORD}
+    full-name: System Administrator
+  upload:
+    dir: ${UPLOAD_DIR:./uploads}
+  tracking:
+    prefix: FCX
+
+logging:
+  level:
+    root: INFO
+    com.farmchainx: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
